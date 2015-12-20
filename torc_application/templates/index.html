@@ -1,0 +1,138 @@
+{% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "bootstrap/fixes.html" as fixes %}
+{% import "bootstrap/utils.html" as util %}
+
+{% block content %}
+{{util.flashed_messages(dismissible=True)}}
+
+<script src="/static/jszip.min.js"></script>
+<script src="/static/jszip-utils.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/bootstrap-table.min.css">
+<!-- Latest compiled and minified JavaScript -->
+<script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/bootstrap-table.min.js"></script>
+
+<div class="container">
+  <ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#tool">Tool</a></li>
+    <li><a data-toggle="tab" href="#assessment">Assessment</a></li>
+    <li><a data-toggle="tab" href="#jobs">Jobs</a></li>
+  </ul>
+
+  <div class="tab-content">
+    <div id="tool" class="tab-pane fade in active">
+      <h1>torc - Tool Menu</h1>
+
+      <form class="tool_form" method=POST>
+      {{ wtf.form_field(tool_form.tool) }}
+      {{ wtf.form_field(tool_form.target) }}
+      {{ wtf.form_field(tool_form.target_name) }}
+      {{ wtf.form_field(tool_form.port_number) }}
+      {{ wtf.form_field(tool_form.password) }}
+      {{ wtf.form_field(tool_form.password_file) }}
+      {{ wtf.form_field(tool_form.user) }}
+      {{ wtf.form_field(tool_form.user_file) }}
+      {{ wtf.form_field(tool_form.protocol) }}
+      {{ wtf.form_field(tool_form.url) }}
+      </form>
+      <button class="btn btn-success" id="submit_tool">Submit Job</button>
+    </div>
+    <div id="assessment" class="tab-pane fade">
+      <h1>torc - Assessment Menu</h1>
+
+      {{ wtf.form_field(assessment_form.assessment) }}
+      {{ wtf.form_field(assessment_form.target) }}
+      {{ wtf.form_field(assessment_form.target_name) }}
+      {{ wtf.form_field(assessment_form.port_number) }}
+      {{ wtf.form_field(assessment_form.password) }}
+      {{ wtf.form_field(assessment_form.password_file) }}
+      {{ wtf.form_field(assessment_form.user) }}
+      {{ wtf.form_field(assessment_form.user_file) }}
+      {{ wtf.form_field(assessment_form.protocol) }}
+      {{ wtf.form_field(assessment_form.url) }}
+      <button class="btn btn-success" id="submit">Submit Job</button>
+    </div>
+    <div id="jobs" class="tab-pane fade">
+      <h1>torc - Jobs Menu</h1>
+      <table id="table_job" class="table table-hover" data-toggle="table" data-url="http://127.0.0.1:5000/tools/jobs">
+        <thead>
+          <tr>
+            <th data-field="id">Item ID</th>
+            <th data-field="target_name">Job Name</th>
+            <th data-field="target">Target Name</th>
+            <th data-field="tool">Tool ID</th>
+            <th data-field="return_code">Return Code</th>
+            <th data-checkbox=true>Export</th>
+          </tr>
+        </thead>
+      </table>
+      <button class="btn btn-success" id="export_job">Export Job</button>
+
+    </div>
+  </div>
+
+<script>
+    var $table = $('#table_job'),
+        $button = $('button#export_job');
+
+    // Export job
+    $(function () {
+        $button.click(function () {
+            var export_data = $table.bootstrapTable('getSelections');
+            var zip = new JSZip();
+            for (var i = 0; i < export_data.length; i++) {
+                var item = export_data[i];
+                JSZipUtils.getBinaryContent('http://127.0.0.1:5000/tools/jobs/exports/' + item['id'], function(err, data) {
+                    var elt = document.getElementById('jszip_utils');
+                    if(err) {
+                        showError(elt, err);
+                        return;
+                    }
+                });
+                alert(item['id'])
+             }
+        });
+    });
+
+    $(function() {
+        $("button#submit_tool").click(function(){
+            $.ajax({
+                type: "POST",
+                url: "http://localhost:5000/tools/jobs",
+                data: $('form.tool_form').serialize(),
+                success: function(msg){
+                    $("#thanks").html(msg)
+                    $("#form-content").modal('hide'); 
+                },
+                error: function(){
+                    alert("failure");
+                }
+            });
+        });
+        // For each tool in assessment...
+        $("button#submit_assessment").click(function(){
+            $.ajax({
+                type: "POST",
+                url: "http://localhost:5000/tools/job",
+                data: $('form.tool_form').serialize(),
+                success: function(msg){
+                    $("#thanks").html(msg)
+                    $("#form-content").modal('hide'); 
+                },
+                error: function(){
+                    alert("failure");
+                }
+            });
+        });
+    });
+</script>
+
+{% endblock %}
+
+{% block head %}
+{{super()}}
+{{fixes.ie8()}}
+
+{% endblock %}

@@ -1,2 +1,2 @@
 # torc-web
-Web interafce for torc.
+Web interface endpoint for torc
