@@ -8,4 +8,10 @@ from torc_application.torc_web import create_app
 # create an app instance
 app = create_app()
 
-app.run(debug=True, port=8080)
+if os.path.isfile('/.dockerinit'):
+    print("Running in docker")
+    #app.run(host='0.0.0.0',debug=True,threaded=True,ssl_context=context)
+    app.run(host='0.0.0.0',debug=True,threaded=True,port=8080)
+else:
+    #app.run(debug=True,threaded=True,ssl_context=context)
+    app.run(debug=True,threaded=True,port=8080)
