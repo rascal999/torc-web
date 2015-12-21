@@ -23,7 +23,7 @@
 
   <div class="tab-content">
     <div id="tool" class="tab-pane fade in active">
-      <h1>torc - Tool Menu</h1>
+      <h1>torc-web v0.1.0 - Tool Menu</h1>
 
       <form class="tool_form" method=POST>
       {{ wtf.form_field(tool_form.tool) }}
@@ -40,7 +40,7 @@
       <button class="btn btn-success" id="submit_tool">Submit Job</button>
     </div>
     <div id="assessment" class="tab-pane fade">
-      <h1>torc - Assessment Menu</h1>
+      <h1>torc-web v0.1.0 - Assessment Menu</h1>
 
       {{ wtf.form_field(assessment_form.assessment) }}
       {{ wtf.form_field(assessment_form.target) }}
@@ -55,7 +55,7 @@
       <button class="btn btn-success" id="submit">Submit Job</button>
     </div>
     <div id="jobs" class="tab-pane fade">
-      <h1>torc - Jobs Menu</h1>
+      <h1>torc-web v0.1.0 - Jobs Menu</h1>
       <table id="table_job" class="table table-hover" data-toggle="table" data-url="http://127.0.0.1:5000/tools/jobs">
         <thead>
           <tr>
