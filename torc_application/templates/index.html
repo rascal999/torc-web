@@ -103,8 +103,19 @@
                 url: "http://localhost:5000/tools/jobs",
                 data: $('form.tool_form').serialize(),
                 success: function(msg){
-                    $("#thanks").html(msg)
-                    $("#form-content").modal('hide'); 
+                    alert(msg['id']);
+                    $.ajax({
+                        type: "POST",
+                        url: "http://localhost:5000/tools/jobs/execute",
+                        data: msg,
+                        success: function(response){
+                            alert("Execute");
+                    
+                        },
+                        error: function(){
+                            alert("failure");
+                        }
+                    });
                 },
                 error: function(){
                     alert("failure");
