@@ -6,6 +6,7 @@
 {% block content %}
 {{util.flashed_messages(dismissible=True)}}
 
+<script src="/static/FileSaver.min.js"></script>
 <script src="/static/jszip.min.js"></script>
 <script src="/static/jszip-utils.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
@@ -23,7 +24,7 @@
 
   <div class="tab-content">
     <div id="tool" class="tab-pane fade in active">
-      <h1>torc-web v0.1.0 - Tool Menu</h1>
+      <h1>torc-web v0.1.1 - Tool Menu</h1>
 
       <form class="tool_form" method=POST>
       {{ wtf.form_field(tool_form.tool) }}
@@ -40,7 +41,7 @@
       <button class="btn btn-success" id="submit_tool">Submit Job</button>
     </div>
     <div id="assessment" class="tab-pane fade">
-      <h1>torc-web v0.1.0 - Assessment Menu</h1>
+      <h1>torc-web v0.1.1 - Assessment Menu</h1>
 
       {{ wtf.form_field(assessment_form.assessment) }}
       {{ wtf.form_field(assessment_form.target) }}
@@ -55,7 +56,7 @@
       <button class="btn btn-success" id="submit">Submit Job</button>
     </div>
     <div id="jobs" class="tab-pane fade">
-      <h1>torc-web v0.1.0 - Jobs Menu</h1>
+      <h1>torc-web v0.1.1 - Jobs Menu</h1>
       <table id="table_job" class="table table-hover" data-toggle="table" data-url="http://127.0.0.1:5000/tools/jobs">
         <thead>
           <tr>
@@ -77,22 +78,42 @@
     var $table = $('#table_job'),
         $button = $('button#export_job');
 
+    // Add file to zip
+    function addToZip(zip, exportId, exportData) {
+        var deferred = $.Deferred();
+        var item = exportData[exportId];
+
+        JSZipUtils.getBinaryContent('http://127.0.0.1:5000/tools/jobs/exports/' + item['id'], function(err, data) {
+            var elt = document.getElementById('jszip_utils');
+            if(err) {
+                showError(elt, err);
+                return;
+            } else {
+                zip.file(item['id'] + ".zip", data)
+                deferred.resolve(zip);
+            }
+        });
+        return deferred;
+    }
+
+    function generateZip(zip) {
+        var content = zip.generate({type:"blob"});
+        saveAs(content, "output.zip");
+        //location.href = "data:application/zip;base64," + content;
+    }
+
     // Export job
     $(function () {
         $button.click(function () {
-            var export_data = $table.bootstrapTable('getSelections');
+            var exportData = $table.bootstrapTable('getSelections');
+            var deferreds = [];
             var zip = new JSZip();
-            for (var i = 0; i < export_data.length; i++) {
-                var item = export_data[i];
-                JSZipUtils.getBinaryContent('http://127.0.0.1:5000/tools/jobs/exports/' + item['id'], function(err, data) {
-                    var elt = document.getElementById('jszip_utils');
-                    if(err) {
-                        showError(elt, err);
-                        return;
-                    }
-                });
-                alert(item['id'])
-             }
+
+            for (var i = 0; i < exportData.length; i++) {
+                deferreds.push(addToZip(zip,i,exportData));
+            }
+
+            $.when.apply(window, deferreds).done(generateZip);
         });
     });
 
