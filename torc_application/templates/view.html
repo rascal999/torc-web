@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  </head>
+<body>
+<script src="/static/jquery.min.js"></script>
+<script src="/static/jszip.min.js"></script>
+<script src="/static/jszip-utils.js"></script>
+<script src="/static/url.min.js"></script>
+<div id="jszip_utils"></div>
+<script type="text/javascript">
+(function () {
+
+  function showError(elt, err) {
+    elt.innerHTML = "<p class='alert alert-danger'>" + err + "</p>";
+  }
+
+  function showContent(elt, content) {
+    elt.innerHTML += "<h1>### ### ###</h1><xmp>" + content + "</xmp>";
+  }
+
+  //=========================
+  // JSZipUtils
+  //=========================
+  JSZipUtils.getBinaryContent('http://127.0.0.1:5000/tools/jobs/exports/' + $.url('?jobid'), function(err, data) {
+    var elt = document.getElementById('jszip_utils');
+
+    try {
+      var zip = new JSZip(data);
+      $.each(zip.files, function (index, zipEntry) {
+            var content = zipEntry.asText();
+            if (content != "") showContent(elt, content);
+      });
+
+    } catch(e) {
+        alert("Error");
+    }
+  });
+
+})();
+</script>
+</body>
+</html>

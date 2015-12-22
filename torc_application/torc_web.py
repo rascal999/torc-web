@@ -101,4 +101,8 @@ def create_app(configfile=None):
 
         return render_template('index.html', tool_form=tool_form, assessment_form=assessment_form)
 
+    @app.route('/view', methods=('GET', 'POST'))
+    def view():
+        return render_template('view.html');
+
     return app
