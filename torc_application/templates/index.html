@@ -9,6 +9,7 @@
 <script src="/static/FileSaver.min.js"></script>
 <script src="/static/jszip.min.js"></script>
 <script src="/static/jszip-utils.js"></script>
+<script src="/static/bootstrap.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/bootstrap-table.min.css">
@@ -24,7 +25,7 @@
 
   <div class="tab-content">
     <div id="tool" class="tab-pane fade in active">
-      <h1>torc-web v0.1.2 - Tool Menu</h1>
+      <h1>torc-web v0.1.3 - Tool Menu</h1>
 
       <form class="tool_form" method=POST>
       {{ wtf.form_field(tool_form.tool) }}
@@ -41,7 +42,7 @@
       <button class="btn btn-success" id="submit_tool">Submit Job</button>
     </div>
     <div id="assessment" class="tab-pane fade">
-      <h1>torc-web v0.1.2 - Assessment Menu</h1>
+      <h1>torc-web v0.1.3 - Assessment Menu</h1>
 
       {{ wtf.form_field(assessment_form.assessment) }}
       {{ wtf.form_field(assessment_form.target) }}
@@ -56,8 +57,8 @@
       <button class="btn btn-success" id="submit">Submit Job</button>
     </div>
     <div id="jobs" class="tab-pane fade">
-      <h1>torc-web v0.1.2 - Jobs Menu</h1>
-      <table id="table_job" class="table table-hover" data-toggle="table" data-url="http://127.0.0.1:5000/tools/jobs">
+      <h1>torc-web v0.1.3 - Jobs Menu</h1>
+      <table id="table_job" class="table table-hover" data-toggle="table" data-url="http://127.0.0.1:5000/tools/jobs" data-pagination="true" data-search="true">
         <thead>
           <tr>
             <th data-field="id">Item ID</th>
@@ -69,7 +70,12 @@
           </tr>
         </thead>
       </table>
-      <button class="btn btn-success" id="export_job">Export Job</button>
+      <div id="toolbar" style="padding-top: 5px; padding-bottom: 5px">
+        <button class="btn btn-success" id="export_job">Export Job</button>
+        <button class="btn btn-default" id="refresh">
+          <i class="glyphicon glyphicon-refresh icon-refresh"></i>
+        </button>
+      </div>
 
     </div>
   </div>
@@ -77,6 +83,7 @@
 <script>
     var $table = $('#table_job'),
         $button = $('button#export_job');
+        $button_refresh = $('button#refresh');
 
     // Add file to zip
     function addToZip(zip, exportId, exportData) {
@@ -101,6 +108,13 @@
         saveAs(content, "output.zip");
         //location.href = "data:application/zip;base64," + content;
     }
+
+    // Refresh button
+    $(function () {
+        $button_refresh.click(function () {
+            $table.bootstrapTable('refresh');
+        });
+    });
 
     // Export job
     $(function () {
