@@ -49,6 +49,7 @@
     <div id="assessment" class="tab-pane fade">
       <h1>torc-web v0.1.4 - Assessment Menu</h1>
 
+      <form class="assessment_form" method=POST>
       {{ wtf.form_field(assessment_form.assessment) }}
       {{ wtf.form_field(assessment_form.target) }}
       {{ wtf.form_field(assessment_form.target_name) }}

@@ -27,7 +27,7 @@ class RunAssessmentForm(Form):
     assessment = SelectField('Assessment', choices=choices,
         description='Assessment to use',
     )
-    target = TextField('Target List')
+    target = TextAreaField('Target List')
     target_name = TextField('Job Name')
     port_number = TextField('Port Number')
     password = TextField('Password')
@@ -61,7 +61,7 @@ class RunToolForm(Form):
     tool = SelectField('Tool', choices=choices,
         description='Tool to use',
     )
-    target = TextField('Target List')
+    target = TextAreaField('Target List')
     target_name = TextField('Job Name')
     port_number = TextField('Port Number')
     password = TextField('Password')
