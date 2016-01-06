@@ -79,7 +79,7 @@
       </table>
       <div id="toolbar" style="padding-top: 5px; padding-bottom: 5px">
         <button class="btn btn-success" id="export_job">Export Job</button>
-        <button class="btn btn-default" id="refresh">
+        <button class="btn btn-default" id="refresh" type="button">
           <i class="glyphicon glyphicon-refresh icon-refresh"></i>
         </button>
       </div>
@@ -88,9 +88,9 @@
   </div>
 
 <script>
-    var $table = $('#table_job'),
-        $button = $('button#export_job');
-        $button_refresh = $('button#refresh');
+    var $table = $('#table_job');
+    var $button = $('button#export_job');
+    var $button_refresh = $('button#refresh');
 
     function viewFormatter(value, row, index) {
         return [
@@ -147,6 +147,7 @@
     $(function() {
         $("button#submit_tool").click(function(){
             // Very pikey code
+            var fail = 0;
             var list_target = target.value.replace(/\r\n/g, "\n").split("\n");
             for(i=0;i<list_target.length;i++) {
                 document.getElementById('target').value = list_target[i];
@@ -160,17 +161,22 @@
                             url: "http://localhost:5000/tools/jobs/execute",
                             data: msg,
                             success: function(response){
-                                alert("Job submitted");
+                                ;
                             },
                             error: function(){
-                                alert("Failure");
+                                fail = 1;
                             }
                         });
                     },
                     error: function(){
-                        alert("failure");
+                        fail = 1;
                     }
                 });
+            }
+            if (fail == 1) {
+                alert("Failure");
+            } else {
+                alert("Success");
             }
         });
         // For each tool in assessment...
