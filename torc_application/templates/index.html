@@ -146,27 +146,32 @@
 
     $(function() {
         $("button#submit_tool").click(function(){
-            $.ajax({
-                type: "POST",
-                url: "http://localhost:5000/tools/jobs",
-                data: $('form.tool_form').serialize(),
-                success: function(msg){
-                    $.ajax({
-                        type: "POST",
-                        url: "http://localhost:5000/tools/jobs/execute",
-                        data: msg,
-                        success: function(response){
-                            alert("Job submitted");
-                        },
-                        error: function(){
-                            alert("Failure");
-                        }
-                    });
-                },
-                error: function(){
-                    alert("failure");
-                }
-            });
+            // Very pikey code
+            var list_target = target.value.replace(/\r\n/g, "\n").split("\n");
+            for(i=0;i<list_target.length;i++) {
+                document.getElementById('target').value = list_target[i];
+                $.ajax({
+                    type: "POST",
+                    url: "http://localhost:5000/tools/jobs",
+                    data: $('form.tool_form').serialize(),
+                    success: function(msg){
+                        $.ajax({
+                            type: "POST",
+                            url: "http://localhost:5000/tools/jobs/execute",
+                            data: msg,
+                            success: function(response){
+                                alert("Job submitted");
+                            },
+                            error: function(){
+                                alert("Failure");
+                            }
+                        });
+                    },
+                    error: function(){
+                        alert("failure");
+                    }
+                });
+            }
         });
         // For each tool in assessment...
         $("button#submit_assessment").click(function(){
