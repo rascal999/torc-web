@@ -94,7 +94,7 @@
 
     function viewFormatter(value, row, index) {
         return [
-            '<a href="/view?jobid=' + (index + 1) + '" target="_blank">View</a>',
+            '<a href="/view?jobid=' + (index + 1) + '?_=' + new Date() / 1000 + '" target="_blank">View</a>',
         ].join('');
     }
 
