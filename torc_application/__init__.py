@@ -8,6 +8,9 @@ from torc_application.torc_web import create_app
 # create an app instance
 app = create_app()
 
+# Don't fetch from the CDN..
+app.config['BOOTSTRAP_SERVE_LOCAL'] = True
+
 if os.path.isfile('/.dockerinit'):
     print("Running in docker")
     #app.run(host='0.0.0.0',debug=True,threaded=True,ssl_context=context)
