@@ -148,7 +148,9 @@
         $("button#submit_tool").click(function(){
             // Very pikey code
             var fail = 0;
+            var target_original = target.value;
             var list_target = target.value.replace(/\r\n/g, "\n").split("\n");
+
             for(i=0;i<list_target.length;i++) {
                 document.getElementById('target').value = list_target[i];
                 $.ajax({
@@ -173,6 +175,10 @@
                     }
                 });
             }
+
+            // Restore original value(s) to target list
+            target.value = target_original;
+
             if (fail == 1) {
                 alert("Failure");
             } else {
