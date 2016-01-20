@@ -260,7 +260,7 @@
         // For each tool in assessment...
         $("button#submit_assessment").click(function(){
             var xmlhttp = new XMLHttpRequest();
-            var url = "http://127.0.0.1:5000/assessments/1";
+            var url = "http://127.0.0.1:5000/assessments/" + document.getElementById('assessment_form').elements[0].value;
 
             xmlhttp.onreadystatechange = function() {
                 if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
