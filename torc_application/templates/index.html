@@ -63,14 +63,14 @@
     </div>
     <div id="jobs" class="tab-pane fade">
       <h1>torc-web v0.1.5 - Jobs Menu</h1>
-      <table id="table_job" class="table table-hover" data-toggle="table" data-url="http://127.0.0.1:5000/tools/jobs" data-pagination="true" data-search="true">
+      <table id="table_job" class="table table-hover" data-toggle="table" data-url="http://127.0.0.1:5000/tools/jobs" data-pagination="true" data-search="true" data-sortable="true">
         <thead>
           <tr>
-            <th data-field="id">Item ID</th>
-            <th data-field="target_name">Job Name</th>
-            <th data-field="target">Target Name</th>
-            <th data-field="tool">Tool ID</th>
-            <th data-field="return_code">Return Code</th>
+            <th data-field="id" data-sortable="true">Item ID</th>
+            <th data-field="target_name" data-sortable="true">Job Name</th>
+            <th data-field="target" data-sortable="true">Target Name</th>
+            <th data-field="tool" data-sortable="true">Tool</th>
+            <th data-field="return_code" data-sortable="true">Return Code</th>
             <th data-checkbox=true>Export</th>
             <th data-field="view" data-formatter="viewFormatter" data-events="viewEvents">View</th>
           </tr>
@@ -87,9 +87,32 @@
   </div>
 
 <script>
-    var $table = $('#table_job');
+    // Replace tool ID with tool name on all events
+    var $table = $('#table_job').bootstrapTable({
+        onAll: function() {
+            updateJobsTable();
+        },
+    });
+
     var $button = $('button#export_job');
     var $button_refresh = $('button#refresh');
+
+    // Replace tool ID with tool name
+    function updateJobsTable() {
+        $.getJSON("http://127.0.0.1:5000/tools", function(tool_json) {
+            console.log(tool_json); // this will show the info it in firebug console
+
+            var table = document.getElementById('table_job');
+            var row_length = table.rows.length;
+
+            for(var i = 1; i < row_length; i += 1){
+                var row = table.rows[i];
+
+                table_tool_id = document.getElementById('table_job').rows[i].cells[3].innerHTML;
+                document.getElementById('table_job').rows[i].cells[3].innerHTML = tool_json['result'][table_tool_id - 1]['name'];
+            }
+        });
+    }
 
     function viewFormatter(value, row, index) {
         return [
