@@ -14,12 +14,10 @@
 <script src="/static/FileSaver.min.js"></script>
 <script src="/static/jszip.min.js"></script>
 <script src="/static/jszip-utils.js"></script>
-<script src="/static/jquery.min.js"></script>
-<!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="/static/bootstrap-table.min.css">
-<!-- Latest compiled and minified JavaScript -->
+<link rel="stylesheet" href="/static/bootstrap-table.css">
 <script src="/static/bootstrap.min.js"></script>
-<script src="/static/bootstrap-table.min.js"></script>
+<script src="/static/jquery.min.js"></script>
+<script src="/static/bootstrap-table.js"></script>
 
 <div class="container">
   <ul class="nav nav-tabs">
@@ -30,48 +28,49 @@
 
   <div class="tab-content">
     <div id="tool" class="tab-pane fade in active">
-      <h1>torc-web v0.1.4 - Tool Menu</h1>
+      <h1>torc-web v0.1.5 - Tool Menu</h1>
 
-      <form class="tool_form" method=POST>
+      <form class="tool_form" id="tool_form" method=POST>
       {{ wtf.form_field(tool_form.tool) }}
-      {{ wtf.form_field(tool_form.target) }}
-      {{ wtf.form_field(tool_form.target_name) }}
-      {{ wtf.form_field(tool_form.port_number) }}
-      {{ wtf.form_field(tool_form.password) }}
-      {{ wtf.form_field(tool_form.password_file) }}
-      {{ wtf.form_field(tool_form.user) }}
-      {{ wtf.form_field(tool_form.user_file) }}
-      {{ wtf.form_field(tool_form.protocol) }}
-      {{ wtf.form_field(tool_form.url) }}
+      {{ wtf.form_field(tool_form.tool_target) }}
+      {{ wtf.form_field(tool_form.tool_target_name) }}
+      {{ wtf.form_field(tool_form.tool_port_number) }}
+      {{ wtf.form_field(tool_form.tool_password) }}
+      {{ wtf.form_field(tool_form.tool_password_file) }}
+      {{ wtf.form_field(tool_form.tool_user) }}
+      {{ wtf.form_field(tool_form.tool_user_file) }}
+      {{ wtf.form_field(tool_form.tool_protocol) }}
+      {{ wtf.form_field(tool_form.tool_url) }}
       </form>
-      <button class="btn btn-success" id="submit_tool">Submit Job</button>
+      <button class="btn btn-success" id="submit_tool" type="button">Submit Job</button>
     </div>
     <div id="assessment" class="tab-pane fade">
-      <h1>torc-web v0.1.4 - Assessment Menu</h1>
+      <h1>torc-web v0.1.5 - Assessment Menu</h1>
 
-      <form class="assessment_form" method=POST>
+      <form class="assessment_form" id="assessment_form" method=POST>
       {{ wtf.form_field(assessment_form.assessment) }}
-      {{ wtf.form_field(assessment_form.target) }}
-      {{ wtf.form_field(assessment_form.target_name) }}
-      {{ wtf.form_field(assessment_form.port_number) }}
-      {{ wtf.form_field(assessment_form.password) }}
-      {{ wtf.form_field(assessment_form.password_file) }}
-      {{ wtf.form_field(assessment_form.user) }}
-      {{ wtf.form_field(assessment_form.user_file) }}
-      {{ wtf.form_field(assessment_form.protocol) }}
-      {{ wtf.form_field(assessment_form.url) }}
-      <button class="btn btn-success" id="submit">Submit Job</button>
+      {{ wtf.form_field(assessment_form.assessment_target) }}
+      {{ wtf.form_field(assessment_form.assessment_target_name) }}
+      {{ wtf.form_field(assessment_form.assessment_port_number) }}
+      {{ wtf.form_field(assessment_form.assessment_password) }}
+      {{ wtf.form_field(assessment_form.assessment_password_file) }}
+      {{ wtf.form_field(assessment_form.assessment_user) }}
+      {{ wtf.form_field(assessment_form.assessment_user_file) }}
+      {{ wtf.form_field(assessment_form.assessment_protocol) }}
+      {{ wtf.form_field(assessment_form.assessment_url) }}
+      </form>
+      <button class="btn btn-success" id="submit_assessment" type="button">Submit Job</button>
     </div>
     <div id="jobs" class="tab-pane fade">
-      <h1>torc-web v0.1.4 - Jobs Menu</h1>
-      <table id="table_job" class="table table-hover" data-toggle="table" data-url="http://127.0.0.1:5000/tools/jobs" data-pagination="true" data-search="true">
+      <h1>torc-web v0.1.5 - Jobs Menu</h1>
+      <table id="table_job" class="table table-hover" data-toggle="table" data-url="http://127.0.0.1:5000/tools/jobs" data-pagination="true" data-search="true" data-sortable="true">
         <thead>
           <tr>
-            <th data-field="id">Item ID</th>
-            <th data-field="target_name">Job Name</th>
-            <th data-field="target">Target Name</th>
-            <th data-field="tool">Tool ID</th>
-            <th data-field="return_code">Return Code</th>
+            <th data-field="id" data-sortable="false">Item ID</th>
+            <th data-field="target_name" data-sortable="false">Job Name</th>
+            <th data-field="target" data-sortable="false">Target Name</th>
+            <th data-field="tool" data-sortable="false">Tool</th>
+            <th data-field="return_code" data-sortable="false">Return Code</th>
             <th data-checkbox=true>Export</th>
             <th data-field="view" data-formatter="viewFormatter" data-events="viewEvents">View</th>
           </tr>
@@ -88,9 +87,48 @@
   </div>
 
 <script>
-    var $table = $('#table_job');
+    // Replace tool ID with tool name on events
+    var $table = $('#table_job').bootstrapTable({
+        onLoadSuccess: function() {
+            updateJobsTable();
+        },
+        onSort: function() {
+            updateJobsTable();
+        },
+        onPageChange: function() {
+            updateJobsTable();
+        },
+        onPostRows: function() {
+            updateJobsTable();
+        },
+    });
+
+    updateJobsTable();
+
     var $button = $('button#export_job');
     var $button_refresh = $('button#refresh');
+
+    // Replace tool ID with tool name
+    function updateJobsTable() {
+        $.getJSON("http://127.0.0.1:5000/tools", function(tool_json) {
+            var table = document.getElementById('table_job');
+            var row_length = table.rows.length;
+            if (row_length > 2) {
+                for(var i = 1; i < row_length; i += 1){
+                    var row = table.rows[i];
+
+                    table_tool_id = document.getElementById('table_job').rows[i].cells[3].innerHTML;
+
+                    // Tool registered to job?
+                    if (table_tool_id > 0) {
+                        document.getElementById('table_job').rows[i].cells[3].innerHTML = tool_json['result'][table_tool_id - 1]['name'];
+                    } else {
+                        document.getElementById('table_job').rows[i].cells[3].innerHTML = '<font color="red">Error!</font>';
+                    }
+                }
+            }
+        });
+    }
 
     function viewFormatter(value, row, index) {
         return [
@@ -99,9 +137,9 @@
     }
 
     // Add file to zip
-    function addToZip(zip, exportId, exportData) {
+    function addToZip(zip, export_id, export_data) {
         var deferred = $.Deferred();
-        var item = exportData[exportId];
+        var item = export_data[export_id];
 
         JSZipUtils.getBinaryContent('http://127.0.0.1:5000/tools/jobs/exports/' + item['id'], function(err, data) {
             var elt = document.getElementById('jszip_utils');
@@ -132,12 +170,12 @@
     // Export job
     $(function () {
         $button.click(function () {
-            var exportData = $table.bootstrapTable('getSelections');
+            var export_data = $table.bootstrapTable('getSelections');
             var deferreds = [];
             var zip = new JSZip();
 
-            for (var i = 0; i < exportData.length; i++) {
-                deferreds.push(addToZip(zip,i,exportData));
+            for(var i=0;i<export_data.length;i++) {
+                deferreds.push(addToZip(zip,i,export_data));
             }
 
             $.when.apply(window, deferreds).done(generateZip);
@@ -146,59 +184,109 @@
 
     $(function() {
         $("button#submit_tool").click(function(){
-            // Very pikey code
-            var fail = 0;
-            var target_original = target.value;
-            var list_target = target.value.replace(/\r\n/g, "\n").split("\n");
+            var errors = 0;
+            var tool = document.getElementById('tool_form').elements[0].value;
+            var target = document.getElementById('tool_form').elements[1].value;
+            var target_name = document.getElementById('tool_form').elements[2].value;
+            var port_number = document.getElementById('tool_form').elements[3].value;
+            var password = document.getElementById('tool_form').elements[4].value;
+            var password_file = document.getElementById('tool_form').elements[5].value;
+            var user = document.getElementById('tool_form').elements[6].value;
+            var user_file = document.getElementById('tool_form').elements[7].value;
+            var protocol = document.getElementById('tool_form').elements[8].value;
+            var url = document.getElementById('tool_form').elements[9].value;
 
-            for(i=0;i<list_target.length;i++) {
-                document.getElementById('target').value = list_target[i];
-                $.ajax({
-                    type: "POST",
-                    url: "http://localhost:5000/tools/jobs",
-                    data: $('form.tool_form').serialize(),
-                    success: function(msg){
-                        $.ajax({
-                            type: "POST",
-                            url: "http://localhost:5000/tools/jobs/execute",
-                            data: msg,
-                            success: function(response){
-                                ;
-                            },
-                            error: function(){
-                                fail = 1;
-                            }
-                        });
-                    },
-                    error: function(){
-                        fail = 1;
-                    }
-                });
-            }
+            var target_array = target.split("\n");
+            $.each(target_array, function(index){
+                serialised = "tool=" + tool + "&target=" + target_array[index] + "&target_name=" + target_name + "&port_number=" + port_number +
+                             "&password=" + password + "&password_file=" + password_file + "&user=" + user + "&user_file=" + user_file +
+                             "&protocol=" + protocol + "&url=" + url;
+                errors = errors + executeTool(serialised,'tool');
+            });
 
-            // Restore original value(s) to target list
-            target.value = target_original;
-
-            if (fail == 1) {
-                alert("Failure");
-            } else {
+            if (errors == 0) {
                 alert("Success");
+            } else {
+                alert("One or more tools failed");
             }
         });
+    });
+
+    function executeTool(data_to_post,type) {
+        var return_code = 0;
+
+        $.ajax({
+            type: "POST",
+            url: "http://localhost:5000/tools/jobs",
+            data: data_to_post,
+            success: function(msg){
+                $.ajax({
+                    type: "POST",
+                    url: "http://localhost:5000/tools/jobs/execute",
+                    data: msg,
+                    success: function(response){
+                        ;
+                    },
+                    error: function(){
+                        return_code = 1;
+                    }
+                });
+            },
+            error: function(){
+                return_code = 1;
+            }
+        });
+
+        return return_code;
+    }
+
+    // Process tool array
+    function processToolArray(tool_array) {
+        var errors = 0;
+
+        var tool = document.getElementById('assessment_form').elements[0].value;
+        var target = document.getElementById('assessment_form').elements[1].value;
+        var target_name = document.getElementById('assessment_form').elements[2].value;
+        var port_number = document.getElementById('assessment_form').elements[3].value;
+        var password = document.getElementById('assessment_form').elements[4].value;
+        var password_file = document.getElementById('assessment_form').elements[5].value;
+        var user = document.getElementById('assessment_form').elements[6].value;
+        var user_file = document.getElementById('assessment_form').elements[7].value;
+        var protocol = document.getElementById('assessment_form').elements[8].value;
+        var url = document.getElementById('assessment_form').elements[9].value;
+
+        var target_array = target.split("\n");
+        $.each(target_array, function(index){
+       	    for(i=0;i<tool_array.result[0].tools.length;i++) {
+                serialised = "tool=" + tool_array.result[0].tools[i].tool + "&target=" + target_array[index] + "&target_name=" + target_name +
+                             "&port_number=" + port_number + "&password=" + password + "&password_file=" + password_file + "&user=" +
+                             user + "&user_file=" + user_file + "&protocol=" + protocol + "&url=" + url;
+                errors = errors + executeTool(serialised,'assessment');
+            }
+        });
+
+        if (errors == 0) {
+            alert("Success");
+        } else {
+            alert("One or more tools failed");
+        }
+   }
+
+    $(function() {
         // For each tool in assessment...
         $("button#submit_assessment").click(function(){
-            $.ajax({
-                type: "POST",
-                url: "http://localhost:5000/tools/job",
-                data: $('form.tool_form').serialize(),
-                success: function(msg){
-                    $("#thanks").html(msg)
-                    $("#form-content").modal('hide'); 
-                },
-                error: function(){
-                    alert("failure");
+            var xmlhttp = new XMLHttpRequest();
+            var url = "http://127.0.0.1:5000/assessments/" + document.getElementById('assessment_form').elements[0].value;
+
+            xmlhttp.onreadystatechange = function() {
+                if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+                    var tool_array = JSON.parse(xmlhttp.responseText);
+                    processToolArray(tool_array);
                 }
-            });
+            };
+
+            xmlhttp.open("GET", url, true);
+            xmlhttp.send();
         });
     });
 </script>

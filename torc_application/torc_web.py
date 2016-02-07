@@ -27,15 +27,15 @@ class RunAssessmentForm(Form):
     assessment = SelectField('Assessment', choices=choices,
         description='Assessment to use',
     )
-    target = TextAreaField('Target List')
-    target_name = TextField('Job Name')
-    port_number = TextField('Port Number')
-    password = TextField('Password')
-    password_file = TextField('Password File')
-    user = TextField('Username')
-    user_file = TextField('Username File')
-    protocol = TextField('Protocol')
-    url = TextField('URL path')
+    assessment_target = TextAreaField('Target List')
+    assessment_target_name = TextField('Job Name')
+    assessment_port_number = TextField('Port Number')
+    assessment_password = TextField('Password')
+    assessment_password_file = TextField('Password File')
+    assessment_user = TextField('Username')
+    assessment_user_file = TextField('Username File')
+    assessment_protocol = TextField('Protocol')
+    assessment_url = TextField('URL path')
 
     #checkbox_field = BooleanField('This is a checkbox',
     #                              description='Checkboxes can be tricky.')
@@ -61,15 +61,15 @@ class RunToolForm(Form):
     tool = SelectField('Tool', choices=choices,
         description='Tool to use',
     )
-    target = TextAreaField('Target List')
-    target_name = TextField('Job Name')
-    port_number = TextField('Port Number')
-    password = TextField('Password')
-    password_file = TextField('Password File')
-    user = TextField('Username')
-    user_file = TextField('Username File')
-    protocol = TextField('Protocol')
-    url = TextField('URL path')
+    tool_target = TextAreaField('Target List')
+    tool_target_name = TextField('Job Name')
+    tool_port_number = TextField('Port Number')
+    tool_password = TextField('Password')
+    tool_password_file = TextField('Password File')
+    tool_user = TextField('Username')
+    tool_user_file = TextField('Username File')
+    tool_protocol = TextField('Protocol')
+    tool_url = TextField('URL path')
 
     #checkbox_field = BooleanField('This is a checkbox',
     #                              description='Checkboxes can be tricky.')
@@ -95,9 +95,9 @@ def create_app(configfile=None):
     @app.route('/', methods=('GET', 'POST'))
     def index():
         assessment_form = RunAssessmentForm()
-        assessment_form.validate_on_submit()
+        #assessment_form.validate_on_submit()
         tool_form = RunToolForm()
-        tool_form.validate_on_submit()
+        #tool_form.validate_on_submit()
 
         return render_template('index.html', tool_form=tool_form, assessment_form=assessment_form)
 
