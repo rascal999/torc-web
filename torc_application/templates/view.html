@@ -26,7 +26,7 @@
   //=========================
   // JSZipUtils
   //=========================
-  JSZipUtils.getBinaryContent('http://127.0.0.1:5000/tools/jobs/exports/' + $.url('?jobid') + '&_=' + new Date() / 1000, function(err, data) {
+  JSZipUtils.getBinaryContent('http://127.0.0.1:5000/tools/jobs/exports/' + $.url('?jobid') + '?_=' + new Date() / 1000, function(err, data) {
     var elt = document.getElementById('jszip_utils');
 
     try {
