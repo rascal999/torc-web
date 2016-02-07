@@ -98,9 +98,9 @@
     }
 
     // Add file to zip
-    function addToZip(zip, exportId, exportData) {
+    function addToZip(zip, export_id, export_data) {
         var deferred = $.Deferred();
-        var item = exportData[exportId];
+        var item = export_data[export_id];
 
         JSZipUtils.getBinaryContent('http://127.0.0.1:5000/tools/jobs/exports/' + item['id'], function(err, data) {
             var elt = document.getElementById('jszip_utils');
@@ -131,12 +131,12 @@
     // Export job
     $(function () {
         $button.click(function () {
-            var exportData = $table.bootstrapTable('getSelections');
+            var export_data = $table.bootstrapTable('getSelections');
             var deferreds = [];
             var zip = new JSZip();
 
-            for(var i=0;i<exportData.length;i++) {
-                deferreds.push(addToZip(zip,i,exportData));
+            for(var i=0;i<export_data.length;i++) {
+                deferreds.push(addToZip(zip,i,export_data));
             }
 
             $.when.apply(window, deferreds).done(generateZip);
@@ -145,6 +145,7 @@
 
     $(function() {
         $("button#submit_tool").click(function(){
+            var errors = 0;
             var tool = document.getElementById('tool_form').elements[0].value;
             var target = document.getElementById('tool_form').elements[1].value;
             var target_name = document.getElementById('tool_form').elements[2].value;
@@ -155,74 +156,49 @@
             var user_file = document.getElementById('tool_form').elements[7].value;
             var protocol = document.getElementById('tool_form').elements[8].value;
             var url = document.getElementById('tool_form').elements[9].value;
-            serialised = "tool=" + tool + "&target=" + target + "&target_name=" + target_name + "&port_number=" + port_number +
-                         "&password=" + password + "&password_file=" + password_file + "&user=" + user + "&user_file=" + user_file +
-                         "&protocol=" + protocol + "&url=" + url;
-            executeTool(serialised,'tool');
+
+            var target_array = target.split("\n");
+            $.each(target_array, function(index){
+                serialised = "tool=" + tool + "&target=" + target_array[index] + "&target_name=" + target_name + "&port_number=" + port_number +
+                             "&password=" + password + "&password_file=" + password_file + "&user=" + user + "&user_file=" + user_file +
+                             "&protocol=" + protocol + "&url=" + url;
+                errors = errors + executeTool(serialised,'tool');
+            });
+
+            if (errors == 0) {
+                alert("Success");
+            } else {
+                alert("One or more tools failed");
+            }
         });
     });
 
-    function executeTool(dataToPost,type) {
-        // Very pikey code
-        var fail = 0;
-        if (type=='tool') {
-            var target_original = tool_target.value;
-            var list_target = tool_target.value.replace(/\r\n/g, "\n").split("\n");
-        } else {
-            var target_original = assessment_target.value;
-            var list_target = assessment_target.value.replace(/\r\n/g, "\n").split("\n");
-        }
+    function executeTool(data_to_post,type) {
+        var return_code = 0;
 
-        for(k=0;k<list_target.length;k++) {
-            if (type=='tool') {
-                document.getElementById('tool_target').value = list_target[k];
-            } else {
-                document.getElementById('assessment_target').value = list_target[k];
+        $.ajax({
+            type: "POST",
+            url: "http://localhost:5000/tools/jobs",
+            data: data_to_post,
+            success: function(msg){
+                $.ajax({
+                    type: "POST",
+                    url: "http://localhost:5000/tools/jobs/execute",
+                    data: msg,
+                    success: function(response){
+                        ;
+                    },
+                    error: function(){
+                        return_code = 1;
+                    }
+                });
+            },
+            error: function(){
+                return_code = 1;
             }
+        });
 
-            $.ajax({
-                type: "POST",
-                url: "http://localhost:5000/tools/jobs",
-                data: dataToPost,
-                success: function(msg){
-                    $.ajax({
-                        type: "POST",
-                        url: "http://localhost:5000/tools/jobs/execute",
-                        data: msg,
-                        success: function(response){
-                            ;
-                        },
-                        error: function(){
-                            fail = 1;
-                        }
-                    });
-                },
-                error: function(){
-                    fail = 1;
-                }
-            });
-        }
-
-        // Restore original value(s) to target list
-        if (type=='tool') {
-            tool_target.value = target_original;
-        } else {
-            assessment_target.value = target_original;
-        }
-
-        if (fail == 1) {
-            if (type=='tool') {
-                alert("Failure");
-            } else {
-                return 1;
-            }
-        } else {
-            if (type=='tool') {
-                alert("Success");
-            } else {
-                return 0;
-            }
-        }
+        return return_code;
     }
 
     // Process tool array
@@ -240,12 +216,15 @@
         var protocol = document.getElementById('assessment_form').elements[8].value;
         var url = document.getElementById('assessment_form').elements[9].value;
 
-        for(i=0;i<tool_array.result[0].tools.length;i++) {
-            serialised = "tool=" + tool_array.result[0].tools[i].tool + "&target=" + target + "&target_name=" + target_name +
-                     "&port_number=" + port_number + "&password=" + password + "&password_file=" + password_file + "&user=" +
-                     user + "&user_file=" + user_file + "&protocol=" + protocol + "&url=" + url;
-            errors = errors + executeTool(serialised,'assessment');
-        }
+        var target_array = target.split("\n");
+        $.each(target_array, function(index){
+       	    for(i=0;i<tool_array.result[0].tools.length;i++) {
+                serialised = "tool=" + tool_array.result[0].tools[i].tool + "&target=" + target_array[index] + "&target_name=" + target_name +
+                             "&port_number=" + port_number + "&password=" + password + "&password_file=" + password_file + "&user=" +
+                             user + "&user_file=" + user_file + "&protocol=" + protocol + "&url=" + url;
+                errors = errors + executeTool(serialised,'assessment');
+            }
+        });
 
         if (errors == 0) {
             alert("Success");
