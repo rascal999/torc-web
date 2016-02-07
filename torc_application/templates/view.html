@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
+  <title>torc - Output</title>
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
@@ -14,6 +15,8 @@
 <div id="jszip_utils"></div>
 <script type="text/javascript">
 (function () {
+
+  document.title = "torc - #" + $.url('?jobid') + " (tool output)";
 
   function showError(elt, err) {
     elt.innerHTML = "<p class='alert alert-danger'>" + err + "</p>";

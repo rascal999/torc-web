@@ -34,7 +34,7 @@ class RunAssessmentForm(Form):
     assessment_password_file = TextField('Password File')
     assessment_user = TextField('Username')
     assessment_user_file = TextField('Username File')
-    assessment_protocol = TextField('Protocol')
+    assessment_protocol = SelectField('Protocol', choices=[('','None'), ('http', 'HTTP'), ('https', 'HTTPS'), ('file', 'File')])
     assessment_url = TextField('URL path')
 
     #checkbox_field = BooleanField('This is a checkbox',
@@ -61,14 +61,14 @@ class RunToolForm(Form):
     tool = SelectField('Tool', choices=choices,
         description='Tool to use',
     )
-    tool_target = TextAreaField('Target List')
-    tool_target_name = TextField('Job Name')
+    tool_target = TextAreaField('Target List', [validators.Length(min=1)])
+    tool_target_name = TextField('Job Name', [validators.Length(min=1, max=64)])
     tool_port_number = TextField('Port Number')
     tool_password = TextField('Password')
     tool_password_file = TextField('Password File')
     tool_user = TextField('Username')
     tool_user_file = TextField('Username File')
-    tool_protocol = TextField('Protocol')
+    tool_protocol = SelectField('Protocol', choices=[('','None'), ('http', 'HTTP'), ('https', 'HTTPS'), ('file', 'File')])
     tool_url = TextField('URL path')
 
     #checkbox_field = BooleanField('This is a checkbox',
