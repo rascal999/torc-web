@@ -87,12 +87,23 @@
   </div>
 
 <script>
-    // Replace tool ID with tool name on all events
+    // Replace tool ID with tool name on events
     var $table = $('#table_job').bootstrapTable({
-        onAll: function() {
+        onLoadSuccess: function() {
+            updateJobsTable();
+        },
+        onSort: function() {
+            updateJobsTable();
+        },
+        onPageChange: function() {
+            updateJobsTable();
+        },
+        onPostRows: function() {
             updateJobsTable();
         },
     });
+
+    updateJobsTable();
 
     var $button = $('button#export_job');
     var $button_refresh = $('button#refresh');
@@ -100,16 +111,21 @@
     // Replace tool ID with tool name
     function updateJobsTable() {
         $.getJSON("http://127.0.0.1:5000/tools", function(tool_json) {
-            console.log(tool_json); // this will show the info it in firebug console
-
             var table = document.getElementById('table_job');
             var row_length = table.rows.length;
+            if (row_length > 2) {
+                for(var i = 1; i < row_length; i += 1){
+                    var row = table.rows[i];
 
-            for(var i = 1; i < row_length; i += 1){
-                var row = table.rows[i];
+                    table_tool_id = document.getElementById('table_job').rows[i].cells[3].innerHTML;
 
-                table_tool_id = document.getElementById('table_job').rows[i].cells[3].innerHTML;
-                document.getElementById('table_job').rows[i].cells[3].innerHTML = tool_json['result'][table_tool_id - 1]['name'];
+                    // Tool registered to job?
+                    if (table_tool_id > 0) {
+                        document.getElementById('table_job').rows[i].cells[3].innerHTML = tool_json['result'][table_tool_id - 1]['name'];
+                    } else {
+                        document.getElementById('table_job').rows[i].cells[3].innerHTML = '<font color="red">Error!</font>';
+                    }
+                }
             }
         });
     }
