@@ -143,7 +143,7 @@
         var deferred = $.Deferred();
         var item = export_data[export_id];
 
-        JSZipUtils.getBinaryContent('http://127.0.0.1:5000/tools/jobs/exports/' + item['id'], function(err, data) {
+        JSZipUtils.getBinaryContent('http://127.0.0.1:5000/tools/jobs/exports/' + item['id'] + '?_=' + new Date() / 1000, function(err, data) {
             var elt = document.getElementById('jszip_utils');
             if(err) {
                 showError(elt, err);
